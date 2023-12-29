@@ -35,24 +35,16 @@ module.exports = (io) => {
     const fecha_c = BoliviaTimeZone(new Date());
    
     try {
-      const duplicateCheckQuery = await checkDuplicatePerson(telefono);
-      const duplicateCheckResult = await queryDatabase(duplicateCheckQuery.query, duplicateCheckQuery.values);
+      const insertQuery = await insertPerson(nombre, apellido, telefono, colegio, representante, carrera, fecha_c);
+      const idPerson = await queryDatabase(insertQuery.query, insertQuery.values);
+      const id_persona = idPerson.insertId;
 
-      if (duplicateCheckResult.length > 0) {
-        res.status(400).send({ message: msj.duplicatedUser });
-      } else {
-        const insertQuery = await insertPerson(nombre, apellido, telefono, colegio, representante, carrera, fecha_c);
-        const idPerson = await queryDatabase(insertQuery.query, insertQuery.values);
-        const id_persona = idPerson.insertId;
+      const insertTicketQuery = insertTicket(id_persona, prioridad, atencion, fecha_c);
 
-        const insertTicketQuery = insertTicket(id_persona, prioridad, atencion, fecha_c);
+      await queryDatabase(insertTicketQuery.queryTicket, insertTicketQuery.valuesTicket);
 
-        await queryDatabase(insertTicketQuery.queryTicket, insertTicketQuery.valuesTicket);
-
-        io.emit('lobby', '');
-        res.status(200).send({ message: msj.successPost });
-
-      }
+      io.emit('lobby', '');
+      res.status(200).send({ message: msj.successPost });
     } catch (err) {
       console.log(err)
       res.status(500).send({ message: msj.errorQuery });
@@ -63,14 +55,6 @@ module.exports = (io) => {
     const id = req.params.id;
     const { idlocation, name, lastname, ci, phone, email, idautor } = req.body;
     try {
-      const duplicateCheckQuery = checkDuplicatePersonUpdate(ci, phone, email, id);
-      const duplicateCheckResult = await queryDatabase(duplicateCheckQuery.query, duplicateCheckQuery.values);
-
-      if (duplicateCheckResult.length > 0) {
-        res.status(400).send({ message: msj.duplicatedPerson });
-        return;
-      }
-
       const updateQuery = updatePerson(id, idlocation, name, lastname, ci, phone, email, idautor);
       await queryDatabase(updateQuery.query, updateQuery.values);
       res.status(200).send({ message: msj.successPut });
