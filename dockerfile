@@ -15,11 +15,5 @@ RUN npm install pm2 -g
 # Copy the rest of the application code
 COPY . .
 
-# Ensure the Prisma schema is copied
-COPY prisma ./prisma/
-
-# Generate Prisma client
-RUN npx prisma generate
-
 # Use pm2-runtime to start the app
 CMD ["pm2-runtime", "app.js"]
