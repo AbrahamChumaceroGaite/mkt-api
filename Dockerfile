@@ -15,5 +15,7 @@ RUN npm install pm2 -g
 # Copy the rest of the application code
 COPY . .
 
+EXPOSE 80
+
 # Use pm2-runtime to start the app
 CMD ["pm2-runtime", "app.js"]
