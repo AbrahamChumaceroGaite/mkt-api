@@ -6,5 +6,5 @@ services:
       NODE_ENV: development
       DEBUG: nodejs-docker-express:*
     ports:
-      - "1952:80"
+      - "64852:80"
     restart: always  
